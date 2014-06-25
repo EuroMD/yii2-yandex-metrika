@@ -1,2 +1,2 @@
-yii2-yandex-metrika
-===================
+Yandex Metrika API (Yii2-wrapper)
+=================================

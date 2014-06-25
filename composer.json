@@ -1,0 +1,21 @@
+{
+	"name": "euromd/yii2-yandex-metrika",
+	"description": "Yii2-wrapper for Yandex Metrika API",
+	"keywords": ["yii2", "yandex", "metrika", "yandex metrika"],
+	"license": "BSD License",
+	"type": "yii2-extension",
+	"authors": [
+		{
+			"name": "Borales (Alexandr Bordun)",
+			"email": "bordun.alexandr@gmail.com"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"EuroMD\\yandexMetrika\\": ""
+		}
+	},
+	"require": {
+		"yiisoft/yii2": "*"
+	}
+}

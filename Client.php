@@ -5,7 +5,6 @@
 
 namespace EuroMD\yandexMetrika;
 
-use yii\authclient\clients\YandexOAuth;
 use yii\base\Component;
 use yii\base\InvalidParamException;
 
@@ -13,7 +12,7 @@ use yii\base\InvalidParamException;
  * @package EuroMD\yandexMetrika
  * @author Borales
  *
- * @property YandexOAuth $apiClient
+ * @property OAuth2 $apiClient
  */
 class Client extends Component
 {
@@ -22,7 +21,7 @@ class Client extends Component
 	/** @var string */
 	public $clientSecret;
 
-	/** @var YandexOAuth */
+	/** @var OAuth2 */
 	private $_apiClient;
 	/** @var string Yandex API base URL */
 	private $_apiBaseUrl = 'https://webmaster.yandex.ru/api/v2/';
@@ -36,12 +35,12 @@ class Client extends Component
 
 	/**
 	 * API Client
-	 * @return YandexOAuth
+	 * @return OAuth2
 	 */
 	public function getApiClient()
 	{
 		if(!$this->_apiClient) {
-			$this->_apiClient = new YandexOAuth([
+			$this->_apiClient = new OAuth2([
 				'clientId' => $this->clientID,
 				'clientSecret' => $this->clientSecret,
 				'apiBaseUrl' => $this->_apiBaseUrl
@@ -59,13 +58,7 @@ class Client extends Component
 	 */
 	public function addOriginalText($text, $siteID)
 	{
-		if(!$this->apiClient->accessToken->isValid)
-			throw new InvalidParamException("Access token not found!");
-
 		$text = urlencode($text);
-		$this->apiClient->setCurlOptions([CURLOPT_HTTPHEADER => [
-			'Authorization: OAuth ' . $this->apiClient->accessToken->token
-		]]);
 		return $this->apiClient->api("hosts/$siteID/original-texts/", "POST", [$text]);
 	}
 }

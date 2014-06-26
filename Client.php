@@ -53,12 +53,19 @@ class Client extends Component
 	/**
 	 * Add Original Text
 	 * @param string $text
-	 * @param int $siteID
+	 * @param int    $siteID
+	 * @throws InvalidParamException
 	 * @return array
 	 */
 	public function addOriginalText($text, $siteID)
 	{
+		if(!$this->apiClient->accessToken->isValid)
+			throw new InvalidParamException("Access token not found!");
+
 		$text = urlencode($text);
+		$this->apiClient->setCurlOptions([CURLOPT_HTTPHEADER => [
+			'Authorization: OAuth ' . $this->apiClient->accessToken->token
+		]]);
 		return $this->apiClient->api("hosts/$siteID/original-texts/", "POST", [$text]);
 	}
 }

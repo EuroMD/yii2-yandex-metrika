@@ -12,10 +12,11 @@
 	],
 	"autoload": {
 		"psr-4": {
-			"EuroMD\\yandexMetrika\\": ""
+			"EuroMD\\yandexMetrika\\": "src/EuroMD/alchemyAPI/"
 		}
 	},
 	"require": {
+		"php": ">=5.4.0",
 		"yiisoft/yii2": "*",
 		"yiisoft/yii2-authclient": "*"
 	}

@@ -82,7 +82,7 @@ class Client extends Component
 
 		$headers = [
 			$this->getAuthHeader(),
-			'Content-Length: ' . mb_strlen($text),
+			'Content-Length: ' . mb_strlen($text)
 		];
 
 		$response = $this->apiClient->api("hosts/$yandexSiteID/original-texts/", "POST", [], $headers);
@@ -110,9 +110,7 @@ class Client extends Component
 	protected function getAuthHeader()
 	{
 		if($this->apiClient->accessToken && $this->apiClient->accessToken->isValid) {
-			return [
-				'Authorization: OAuth ' . $this->apiClient->accessToken->token
-			];
+			return 'Authorization: OAuth ' . $this->apiClient->accessToken->token;
 		}
 		throw new InvalidParamException('NOT VALID ACCESS TOKEN', self::CODE_UNAUTHORIZED);
 	}

@@ -104,7 +104,7 @@ class Client extends Component
 
 	protected function authorize()
 	{
-		$authUrl = $this->apiClient->buildAuthUrl(); // Build authorization URL
+		$authUrl = $this->apiClient->buildAuthUrl(['display' => 'iframe', 'redirect_uri' => null]); // Build authorization URL
 		\Yii::$app->getResponse()->redirect($authUrl)->send(); // Redirect to authorization URL.
 	}
 }

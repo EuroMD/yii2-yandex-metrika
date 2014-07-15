@@ -30,7 +30,7 @@ class Client extends Component
 	/** @var YandexOAuth */
 	private $_apiClient;
 	/** @var string Yandex API base URL */
-	private $_apiBaseUrl = 'https://webmaster.yandex.ru/api/v2/';
+	private $_apiBaseUrl = 'https://webmaster.yandex.ru/api/v2';
 
 	public function init()
 	{

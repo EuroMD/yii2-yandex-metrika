@@ -5,7 +5,7 @@
 
 namespace EuroMD\yandexMetrika;
 
-use yii\authclient\OAuth2;
+use yii\authclient\clients\YandexOAuth;
 use yii\base\Component;
 use yii\base\InvalidParamException;
 use yii\validators\StringValidator;
@@ -14,7 +14,7 @@ use yii\validators\StringValidator;
  * @package EuroMD\yandexMetrika
  * @author Borales
  *
- * @property OAuth2 $apiClient
+ * @property YandexOAuth $apiClient
  */
 class Client extends Component
 {
@@ -25,12 +25,10 @@ class Client extends Component
 	public $clientID;
 	/** @var string */
 	public $clientSecret;
-	/** @var OAuth2 */
+	/** @var YandexOAuth */
 	private $_apiClient;
 	/** @var string Yandex API base URL */
 	private $_apiBaseUrl = 'https://webmaster.yandex.ru/api/v2/';
-	/** @var string Yandex API Auth URL */
-	private $_authUrl = 'https://oauth.yandex.ru/authorize';
 
 	public function init()
 	{
@@ -41,16 +39,15 @@ class Client extends Component
 
 	/**
 	 * API Client
-	 * @return OAuth2
+	 * @return YandexOAuth
 	 */
 	public function getApiClient()
 	{
 		if(!$this->_apiClient) {
-			$this->_apiClient = new OAuth2([
+			$this->_apiClient = new YandexOAuth([
 				'clientId' => $this->clientID,
 				'clientSecret' => $this->clientSecret,
 				'apiBaseUrl' => $this->_apiBaseUrl,
-				'authUrl' => $this->_authUrl,
 			]);
 		}
 		return $this->_apiClient;

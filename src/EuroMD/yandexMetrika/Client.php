@@ -75,7 +75,17 @@ class Client extends Component
 		}
 
 		$text = urlencode("<original-text><content>{$text}</content></original-text>");
-		$response = $this->apiClient->api("hosts/$yandexSiteID/original-texts/", "POST", [$text], $this->getAuthHeader());
+
+		$this->apiClient->setCurlOptions([
+			CURLOPT_POSTFIELDS => $text,
+		]);
+
+		$headers = [
+			$this->getAuthHeader(),
+			'Content-Length: ' . mb_strlen($text),
+		];
+
+		$response = $this->apiClient->api("hosts/$yandexSiteID/original-texts/", "POST", [], $headers);
 		var_dump($response); exit;
 		//Dumper::dump($response); exit;
 

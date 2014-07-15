@@ -5,8 +5,10 @@
 
 namespace EuroMD\yandexMetrika;
 
+use yii\authclient\OAuth2;
 use yii\base\Component;
 use yii\base\InvalidParamException;
+use yii\validators\StringValidator;
 
 /**
  * @package EuroMD\yandexMetrika
@@ -16,11 +18,13 @@ use yii\base\InvalidParamException;
  */
 class Client extends Component
 {
+	const YANDEX_OT_MIN = 500;
+	const YANDEX_OT_MAX = 32000;
+
 	/** @var string */
 	public $clientID;
 	/** @var string */
 	public $clientSecret;
-
 	/** @var OAuth2 */
 	private $_apiClient;
 	/** @var string Yandex API base URL */
@@ -52,13 +56,50 @@ class Client extends Component
 	/**
 	 * Add Original Text
 	 * @param string $text
-	 * @param int    $siteID
+	 * @param int $yandexSiteID
 	 * @throws InvalidParamException
-	 * @return array
+	 * @return string|bool
 	 */
-	public function addOriginalText($text, $siteID)
+	public function addOriginalText($text, $yandexSiteID)
 	{
+		$validator = new StringValidator([
+			'min' => self::YANDEX_OT_MIN,
+			'max' => self::YANDEX_OT_MAX,
+			'enableClientValidation' => false,
+		]);
+
 		$text = urlencode($text);
-		return $this->apiClient->api("hosts/$siteID/original-texts/", "POST", [$text]);
+		if(!$validator->validate($text, $error)) {
+			throw new InvalidParamException($error);
+		}
+
+		$text = urlencode("<original-text><content>{$text}</content></original-text>");
+		$response = $this->apiClient->api("hosts/$yandexSiteID/original-texts/", "POST", [$text], $this->getAuthHeader());
+		var_dump($response); exit;
+		//Dumper::dump($response); exit;
+
+		return true;
+	}
+
+	/**
+	 * Auth header
+	 * @return array
+	 * @throws InvalidParamException
+	 */
+	protected function getAuthHeader()
+	{
+		if($this->apiClient->accessToken && $this->apiClient->accessToken->isValid) {
+			return [
+				'Authorization: OAuth ' . $this->apiClient->accessToken->token
+			];
+		} else {
+			$authUrl = $this->apiClient->apiBaseUrl . $this->apiClient->buildAuthUrl(); // Build authorization URL
+			\Yii::$app->getResponse()->redirect($authUrl)->send(); // Redirect to authorization URL.
+			//$code = $_GET['code'];
+			//$accessToken = $oauthClient->fetchAccessToken($code); // Get access token
+			//$authUrl = $this->apiClient->apiBaseUrl . $this->apiClient->buildAuthUrl();
+		}
+
+		throw new InvalidParamException('NOT VALID ACCESS TOKEN');
 	}
 }

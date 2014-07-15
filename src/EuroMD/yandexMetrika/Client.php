@@ -29,6 +29,8 @@ class Client extends Component
 	private $_apiClient;
 	/** @var string Yandex API base URL */
 	private $_apiBaseUrl = 'https://webmaster.yandex.ru/api/v2/';
+	/** @var string Yandex API Auth URL */
+	private $_authUrl = 'https://oauth.yandex.ru/authorize';
 
 	public function init()
 	{
@@ -47,7 +49,8 @@ class Client extends Component
 			$this->_apiClient = new OAuth2([
 				'clientId' => $this->clientID,
 				'clientSecret' => $this->clientSecret,
-				'apiBaseUrl' => $this->_apiBaseUrl
+				'apiBaseUrl' => $this->_apiBaseUrl,
+				'authUrl' => $this->_authUrl,
 			]);
 		}
 		return $this->_apiClient;

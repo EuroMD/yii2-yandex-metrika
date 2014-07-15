@@ -93,13 +93,18 @@ class Client extends Component
 				'Authorization: OAuth ' . $this->apiClient->accessToken->token
 			];
 		} else {
-			$authUrl = $this->apiClient->buildAuthUrl(); // Build authorization URL
-			\Yii::$app->getResponse()->redirect($authUrl)->send(); // Redirect to authorization URL.
+			$this->authorize();
 			//$code = $_GET['code'];
 			//$accessToken = $oauthClient->fetchAccessToken($code); // Get access token
 			//$authUrl = $this->apiClient->apiBaseUrl . $this->apiClient->buildAuthUrl();
 		}
 
 		throw new InvalidParamException('NOT VALID ACCESS TOKEN');
+	}
+
+	protected function authorize()
+	{
+		$authUrl = $this->apiClient->buildAuthUrl(); // Build authorization URL
+		\Yii::$app->getResponse()->redirect($authUrl)->send(); // Redirect to authorization URL.
 	}
 }

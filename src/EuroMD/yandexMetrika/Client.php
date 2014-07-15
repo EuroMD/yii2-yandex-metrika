@@ -93,7 +93,7 @@ class Client extends Component
 				'Authorization: OAuth ' . $this->apiClient->accessToken->token
 			];
 		} else {
-			$authUrl = $this->apiClient->apiBaseUrl . $this->apiClient->buildAuthUrl(); // Build authorization URL
+			$authUrl = $this->apiClient->buildAuthUrl(); // Build authorization URL
 			\Yii::$app->getResponse()->redirect($authUrl)->send(); // Redirect to authorization URL.
 			//$code = $_GET['code'];
 			//$accessToken = $oauthClient->fetchAccessToken($code); // Get access token

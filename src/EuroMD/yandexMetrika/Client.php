@@ -8,6 +8,7 @@ namespace EuroMD\yandexMetrika;
 use yii\authclient\clients\YandexOAuth;
 use yii\base\Component;
 use yii\base\InvalidParamException;
+use yii\helpers\ArrayHelper;
 use yii\validators\StringValidator;
 
 /**
@@ -74,22 +75,31 @@ class Client extends Component
 			throw new InvalidParamException($error);
 		}
 
-		$text = urlencode("<original-text><content>{$text}</content></original-text>");
+		$text = urlencode(htmlspecialchars($text));
+		$text = "<original-text><content>{$text}</content></original-text>";
 
-		$this->apiClient->setCurlOptions([
-			CURLOPT_POSTFIELDS => $text,
-		]);
+		$headers = ['Content-Length' => mb_strlen($text)];
+		if($this->apiClient->accessToken && $this->apiClient->accessToken->isValid) {
+			$headers['Authorization'] = 'OAuth ' . $this->apiClient->accessToken->token;
+		}
 
-		$headers = [
-			$this->getAuthHeader(),
-			'Content-Length: ' . mb_strlen($text)
-		];
+		//$response = $this->apiClient->api("hosts/$yandexSiteID/original-texts/", "POST", $text, $headers);
+		$response = \Requests::post($this->apiClient->apiBaseUrl . "/hosts/$yandexSiteID/original-texts/", $headers, $text);
+		if($response->success) {
+			$body = $response->body;
+			if($body) {
+				$body = (array)simplexml_load_string($body);
+				if(ArrayHelper::keyExists('id', $body) && ArrayHelper::keyExists('link', $body)) {
+					return true;
+				}
+			}
+		}
 
-		$response = $this->apiClient->api("hosts/$yandexSiteID/original-texts/", "POST", [], $headers);
-		var_dump($response); exit;
-		//Dumper::dump($response); exit;
-
-		return true;
+		$msg = 'Yandex API Error';
+		if($response->body) {
+			$msg = trim(strip_tags($response->body));
+		}
+		throw new InvalidParamException($msg);
 	}
 
 	/**

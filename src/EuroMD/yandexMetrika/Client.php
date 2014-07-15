@@ -9,6 +9,7 @@ use yii\authclient\clients\YandexOAuth;
 use yii\base\Component;
 use yii\base\InvalidParamException;
 use yii\validators\StringValidator;
+use yii\web\Response;
 
 /**
  * @package EuroMD\yandexMetrika
@@ -18,6 +19,8 @@ use yii\validators\StringValidator;
  */
 class Client extends Component
 {
+	const CODE_UNAUTHORIZED = 401;
+
 	const YANDEX_OT_MIN = 500;
 	const YANDEX_OT_MAX = 32000;
 
@@ -82,6 +85,16 @@ class Client extends Component
 	}
 
 	/**
+	 * @param string $code
+	 */
+	public function setCode($code)
+	{
+		if($code) {
+			$this->apiClient->fetchAccessToken($code);
+		}
+	}
+
+	/**
 	 * Auth header
 	 * @return array
 	 * @throws InvalidParamException
@@ -92,19 +105,17 @@ class Client extends Component
 			return [
 				'Authorization: OAuth ' . $this->apiClient->accessToken->token
 			];
-		} else {
-			$this->authorize();
-			//$code = $_GET['code'];
-			//$accessToken = $oauthClient->fetchAccessToken($code); // Get access token
-			//$authUrl = $this->apiClient->apiBaseUrl . $this->apiClient->buildAuthUrl();
 		}
-
-		throw new InvalidParamException('NOT VALID ACCESS TOKEN');
+		throw new InvalidParamException('NOT VALID ACCESS TOKEN', self::CODE_UNAUTHORIZED);
 	}
 
-	protected function authorize()
+	/**
+	 * Authorization response
+	 * @return Response
+	 */
+	public function authorize()
 	{
-		$authUrl = $this->apiClient->buildAuthUrl(['display' => 'iframe', 'redirect_uri' => null]); // Build authorization URL
-		\Yii::$app->getResponse()->redirect($authUrl)->send(); // Redirect to authorization URL.
+		$authUrl = $this->apiClient->buildAuthUrl(['display' => 'iframe', 'redirect_uri' => null]);
+		return \Yii::$app->response->redirect($authUrl);
 	}
 }

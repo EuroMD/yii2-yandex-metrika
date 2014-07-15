@@ -113,6 +113,6 @@ class Client extends Component
 	 */
 	public function getAuthorizeURL()
 	{
-		return $this->apiClient->buildAuthUrl(['display' => 'iframe', 'redirect_uri' => null]);
+		return $this->apiClient->buildAuthUrl(['display' => 'iframe', 'redirect_uri' => null, 'xoauth_displayname' => null]);
 	}
 }

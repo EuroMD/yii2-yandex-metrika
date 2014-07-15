@@ -9,7 +9,6 @@ use yii\authclient\clients\YandexOAuth;
 use yii\base\Component;
 use yii\base\InvalidParamException;
 use yii\validators\StringValidator;
-use yii\web\Response;
 
 /**
  * @package EuroMD\yandexMetrika
@@ -110,12 +109,11 @@ class Client extends Component
 	}
 
 	/**
-	 * Authorization response
-	 * @return Response
+	 * Authorization url
+	 * @return string
 	 */
-	public function authorize()
+	public function getAuthorizeURL()
 	{
-		$authUrl = $this->apiClient->buildAuthUrl(['display' => 'iframe', 'redirect_uri' => null]);
-		return \Yii::$app->response->redirect($authUrl);
+		return $this->apiClient->buildAuthUrl(['display' => 'iframe', 'redirect_uri' => null]);
 	}
 }

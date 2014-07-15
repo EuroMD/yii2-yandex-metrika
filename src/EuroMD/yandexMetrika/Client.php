@@ -70,7 +70,6 @@ class Client extends Component
 			'enableClientValidation' => false,
 		]);
 
-		$text = urlencode($text);
 		if(!$validator->validate($text, $error)) {
 			throw new InvalidParamException($error);
 		}

@@ -29,7 +29,7 @@ class OAuth2 extends YandexOAuth
 	public function api($apiSubUrl, $method = 'GET', $params = [], array $headers = [])
 	{
 		if(!is_array($params)) {
-			$headers['Content-Length'] = mb_strlen($params);
+			$headers[] = 'Content-Length: ' . mb_strlen($params);
 			$this->setCurlOptions([CURLOPT_POSTFIELDS => $params]);
 			$params = [];
 		}
@@ -61,7 +61,7 @@ class OAuth2 extends YandexOAuth
 	 */
 	protected function apiInternal($accessToken, $url, $method, array $params, array $headers)
 	{
-		$headers['Authorization'] = 'OAuth ' . $accessToken->token;
+		$headers[] = 'Authorization: OAuth ' . $accessToken->token;
 		return $this->sendRequest($method, $url, $params, $headers);
 	}
 

@@ -19,9 +19,50 @@ class OAuth2 extends YandexOAuth
 	/** @var string Yandex API base URL */
 	public $apiBaseUrl = 'https://webmaster.yandex.ru/api/v2';
 
+	/**
+	 * @param string $apiSubUrl
+	 * @param string $method
+	 * @param array|string $params
+	 * @param array $headers
+	 * @return array
+	 */
 	public function api($apiSubUrl, $method = 'GET', $params = [], array $headers = [])
 	{
+		if(!is_array($params)) {
+			$headers['Content-Length'] = mb_strlen($params);
+			$this->setCurlOptions([CURLOPT_POSTFIELDS => $params]);
+			$params = [];
+		}
 		return parent::api($apiSubUrl, $method, $params, $headers);
+	}
+
+	/**
+	 * @param string $method
+	 * @param string $url
+	 * @param array $params
+	 * @return array
+	 */
+	protected function composeRequestCurlOptions($method, $url, array $params)
+	{
+		$options = parent::composeRequestCurlOptions($method, $url, $params);
+		if($method == 'POST' && !$params) {
+			unset($options[CURLOPT_POSTFIELDS], $options[CURLOPT_HTTPHEADER]);
+		}
+		return $options;
+	}
+
+	/**
+	 * @param \yii\authclient\OAuthToken $accessToken
+	 * @param string $url
+	 * @param string $method
+	 * @param array $params
+	 * @param array $headers
+	 * @return array
+	 */
+	protected function apiInternal($accessToken, $url, $method, array $params, array $headers)
+	{
+		$headers['Authorization'] = 'OAuth ' . $accessToken->token;
+		return $this->sendRequest($method, $url, $params, $headers);
 	}
 
 	/**

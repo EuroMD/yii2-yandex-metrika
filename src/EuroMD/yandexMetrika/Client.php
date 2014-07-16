@@ -5,17 +5,17 @@
 
 namespace EuroMD\yandexMetrika;
 
-use yii\authclient\clients\YandexOAuth;
 use yii\base\Component;
 use yii\base\InvalidParamException;
 use yii\helpers\ArrayHelper;
+use yii\helpers\VarDumper;
 use yii\validators\StringValidator;
 
 /**
  * @package EuroMD\yandexMetrika
  * @author Borales
  *
- * @property YandexOAuth $apiClient
+ * @property OAuth2 $apiClient
  */
 class Client extends Component
 {
@@ -25,32 +25,32 @@ class Client extends Component
 	const YANDEX_OT_MAX = 32000;
 
 	/** @var string */
+	public $cacheComponent = 'cache';
+	/** @var string */
 	public $clientID;
 	/** @var string */
 	public $clientSecret;
-	/** @var YandexOAuth */
+	/** @var OAuth2 */
 	private $_apiClient;
-	/** @var string Yandex API base URL */
-	private $_apiBaseUrl = 'https://webmaster.yandex.ru/api/v2';
 
 	public function init()
 	{
 		parent::init();
-		if(!$this->clientID || !$this->clientSecret)
+		if (!$this->clientID || !$this->clientSecret)
 			throw new InvalidParamException;
 	}
 
 	/**
 	 * API Client
-	 * @return YandexOAuth
+	 * @return OAuth2
 	 */
 	public function getApiClient()
 	{
-		if(!$this->_apiClient) {
-			$this->_apiClient = new YandexOAuth([
+		if (!$this->_apiClient) {
+			$this->_apiClient = new OAuth2([
 				'clientId' => $this->clientID,
 				'clientSecret' => $this->clientSecret,
-				'apiBaseUrl' => $this->_apiBaseUrl,
+				'cacheComponent' => $this->cacheComponent,
 			]);
 		}
 		return $this->_apiClient;
@@ -71,32 +71,29 @@ class Client extends Component
 			'enableClientValidation' => false,
 		]);
 
-		if(!$validator->validate($text, $error)) {
+		if (!$validator->validate($text, $error)) {
 			throw new InvalidParamException($error);
 		}
 
 		$text = urlencode(htmlspecialchars($text));
 		$text = "<original-text><content>{$text}</content></original-text>";
 
-		$headers = ['Content-Length' => mb_strlen($text)];
-		if($this->apiClient->accessToken && $this->apiClient->accessToken->isValid) {
-			$headers['Authorization'] = 'OAuth ' . $this->apiClient->accessToken->token;
-		}
-
-		//$response = $this->apiClient->api("hosts/$yandexSiteID/original-texts/", "POST", $text, $headers);
-		$response = \Requests::post($this->apiClient->apiBaseUrl . "/hosts/$yandexSiteID/original-texts/", $headers, $text);
-		if($response->success) {
+		$response = $this->apiClient->api("hosts/$yandexSiteID/original-texts/", "POST", $text);
+		VarDumper::dump($response);
+		exit;
+		//$response = \Requests::post($this->apiClient->apiBaseUrl . "/hosts/$yandexSiteID/original-texts/", $headers, $text);
+		if ($response->success) {
 			$body = $response->body;
-			if($body) {
+			if ($body) {
 				$body = (array)simplexml_load_string($body);
-				if(ArrayHelper::keyExists('id', $body) && ArrayHelper::keyExists('link', $body)) {
+				if (ArrayHelper::keyExists('id', $body) && ArrayHelper::keyExists('link', $body)) {
 					return true;
 				}
 			}
 		}
 
 		$msg = 'Yandex API Error';
-		if($response->body) {
+		if ($response->body) {
 			$msg = trim(strip_tags($response->body));
 		}
 		throw new InvalidParamException($msg);
@@ -107,9 +104,7 @@ class Client extends Component
 	 */
 	public function setCode($code)
 	{
-		if($code) {
-			$this->apiClient->fetchAccessToken($code);
-		}
+		$this->apiClient->fetchAccessToken($code);
 	}
 
 	/**
@@ -119,7 +114,7 @@ class Client extends Component
 	 */
 	protected function getAuthHeader()
 	{
-		if($this->apiClient->accessToken && $this->apiClient->accessToken->isValid) {
+		if ($this->apiClient->accessToken && $this->apiClient->accessToken->isValid) {
 			return 'Authorization: OAuth ' . $this->apiClient->accessToken->token;
 		}
 		throw new InvalidParamException('NOT VALID ACCESS TOKEN', self::CODE_UNAUTHORIZED);

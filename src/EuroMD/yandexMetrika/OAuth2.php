@@ -6,6 +6,8 @@
 namespace EuroMD\yandexMetrika;
 
 use yii\authclient\clients\YandexOAuth;
+use yii\authclient\InvalidResponseException;
+use yii\base\InvalidParamException;
 use yii\caching\Cache;
 
 /**
@@ -57,12 +59,20 @@ class OAuth2 extends YandexOAuth
 	 * @param string $method
 	 * @param array $params
 	 * @param array $headers
+	 * @throws InvalidParamException
 	 * @return array
 	 */
 	protected function apiInternal($accessToken, $url, $method, array $params, array $headers)
 	{
 		$headers[] = 'Authorization: OAuth ' . $accessToken->token;
-		return $this->sendRequest($method, $url, $params, $headers);
+		try {
+			return $this->sendRequest($method, $url, $params, $headers);
+		} catch (InvalidResponseException $e) {
+			if($e->responseHeaders['http_code'] == 201) {
+				return $this->processResponse($e->responseBody, $this->determineContentTypeByHeaders($e->responseHeaders));
+			}
+			throw new InvalidParamException('Request failed with code: ' . $e->responseHeaders['http_code'] . ', message: ' . $e->responseBody);
+		}
 	}
 
 	/**

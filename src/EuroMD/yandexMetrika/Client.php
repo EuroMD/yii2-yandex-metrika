@@ -78,8 +78,13 @@ class Client extends Component
 		$text = urlencode(htmlspecialchars($text));
 		$text = "<original-text><content>{$text}</content></original-text>";
 
-		$response = $this->apiClient->api("hosts/$yandexSiteID/original-texts/", "POST", $text);
-		VarDumper::dump($response);
+		try {
+			$response = $this->apiClient->api("hosts/$yandexSiteID/original-texts/", "POST", $text);
+			VarDumper::dump($response);
+		} catch (\Exception $e) {
+			VarDumper::dump($e->getMessage());
+		}
+
 		exit;
 		//$response = \Requests::post($this->apiClient->apiBaseUrl . "/hosts/$yandexSiteID/original-texts/", $headers, $text);
 		if ($response->success) {

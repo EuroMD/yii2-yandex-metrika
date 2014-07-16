@@ -8,7 +8,6 @@ namespace EuroMD\yandexMetrika;
 use yii\base\Component;
 use yii\base\InvalidParamException;
 use yii\helpers\ArrayHelper;
-use yii\helpers\VarDumper;
 use yii\validators\StringValidator;
 
 /**
@@ -78,30 +77,8 @@ class Client extends Component
 		$text = urlencode(htmlspecialchars($text));
 		$text = "<original-text><content>{$text}</content></original-text>";
 
-		try {
-			$response = $this->apiClient->api("hosts/$yandexSiteID/original-texts/", "POST", $text);
-			VarDumper::dump($response);
-		} catch (\Exception $e) {
-			VarDumper::dump($e->getMessage());
-		}
-
-		exit;
-		//$response = \Requests::post($this->apiClient->apiBaseUrl . "/hosts/$yandexSiteID/original-texts/", $headers, $text);
-		if ($response->success) {
-			$body = $response->body;
-			if ($body) {
-				$body = (array)simplexml_load_string($body);
-				if (ArrayHelper::keyExists('id', $body) && ArrayHelper::keyExists('link', $body)) {
-					return true;
-				}
-			}
-		}
-
-		$msg = 'Yandex API Error';
-		if ($response->body) {
-			$msg = trim(strip_tags($response->body));
-		}
-		throw new InvalidParamException($msg);
+		$response = $this->apiClient->api("hosts/$yandexSiteID/original-texts/", "POST", $text);
+		return ArrayHelper::keyExists('id', $response) && ArrayHelper::keyExists('link', $response);
 	}
 
 	/**

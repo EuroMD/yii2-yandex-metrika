@@ -1,6 +1,11 @@
 Yandex Metrika API (Yii2-wrapper)
 =================================
 
+[![Total Downloads](https://poser.pugx.org/euromd/yii2-yandex-metrika/downloads.svg)](https://packagist.org/packages/euromd/yii2-yandex-metrika)
+[![Latest Stable Version](https://poser.pugx.org/euromd/yii2-yandex-metrika/v/stable.svg)](https://packagist.org/packages/euromd/yii2-yandex-metrika)
+[![Latest Unstable Version](https://poser.pugx.org/euromd/yii2-yandex-metrika/v/unstable.svg)](https://packagist.org/packages/euromd/yii2-yandex-metrika)
+[![License](https://poser.pugx.org/euromd/yii2-yandex-metrika/license.svg)](https://packagist.org/packages/euromd/yii2-yandex-metrika)
+
 Installation
 ------------
 

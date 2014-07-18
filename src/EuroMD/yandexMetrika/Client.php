@@ -7,6 +7,7 @@ namespace EuroMD\yandexMetrika;
 
 use yii\base\Component;
 use yii\base\InvalidParamException;
+use yii\caching\Cache;
 use yii\helpers\ArrayHelper;
 use yii\validators\StringValidator;
 
@@ -20,8 +21,12 @@ class Client extends Component
 {
 	const CODE_UNAUTHORIZED = 401;
 
+	/** @var int Minimum text lenght for Original Text */
 	const YANDEX_OT_MIN = 500;
+	/** @var int Maximum text lenght for Original Text */
 	const YANDEX_OT_MAX = 32000;
+	/** @var int Daily limit for Original Text */
+	const YANDEX_OT_DAILY_LIMIT = 100;
 
 	/** @var string */
 	public $cacheComponent = 'cache';
@@ -64,6 +69,19 @@ class Client extends Component
 	 */
 	public function addOriginalText($text, $yandexSiteID)
 	{
+		/** @var Cache $cache */
+		$cache = \Yii::$app->get($this->cacheComponent);
+		$cacheKey = "Yandex_OT_sent:" . $this->clientID . "_" . $this->clientSecret;
+
+		$sent = $cache->get($cacheKey);
+		if($sent === false) {
+			$sent = 0;
+		}
+
+		if($sent >= self::YANDEX_OT_DAILY_LIMIT) {
+			throw new InvalidParamException("Daily limit exceeded!");
+		}
+
 		$validator = new StringValidator([
 			'min' => self::YANDEX_OT_MIN,
 			'max' => self::YANDEX_OT_MAX,
@@ -78,7 +96,13 @@ class Client extends Component
 		$text = "<original-text><content>{$text}</content></original-text>";
 
 		$response = $this->apiClient->api("hosts/$yandexSiteID/original-texts/", "POST", $text);
-		return ArrayHelper::keyExists('id', $response) && ArrayHelper::keyExists('link', $response);
+
+		$success = ArrayHelper::keyExists('id', $response) && ArrayHelper::keyExists('link', $response);
+		if($success) {
+			$sent++;
+			$cache->set($cacheKey, $sent, 60 * 60 * 24);
+		}
+		return $success;
 	}
 
 	/**

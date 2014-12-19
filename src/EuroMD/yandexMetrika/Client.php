@@ -14,6 +14,7 @@ use yii\validators\StringValidator;
 /**
  * @package EuroMD\yandexMetrika
  * @author Borales
+ * @version 0.1.2
  *
  * @property OAuth2 $apiClient
  */

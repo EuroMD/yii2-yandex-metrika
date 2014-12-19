@@ -1,5 +1,6 @@
 {
 	"name": "euromd/yii2-yandex-metrika",
+	"version": "0.1.2",
 	"description": "Yii2-wrapper for Yandex Metrika API",
 	"keywords": ["yii2", "yandex", "metrika", "yandex metrika"],
 	"license": "BSD License",

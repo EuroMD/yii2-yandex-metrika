@@ -33,6 +33,8 @@ class OAuth2 extends YandexOAuth
     {
         if (is_string($params)) {
             $headers[] = 'Content-Length: ' . mb_strlen($params);
+            $headers[] = 'Host: webmaster.yandex.ru';
+            $headers[] = $method . ' ' . parse_url($this->apiBaseUrl, PHP_URL_PATH) . $apiSubUrl . ' HTTP/1.1';
             $this->setCurlOptions([CURLOPT_POSTFIELDS => $params]);
             $params = [];
         }
